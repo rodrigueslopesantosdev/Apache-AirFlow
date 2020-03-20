@@ -13,13 +13,12 @@ timeZone = pendulum.timezone("America/Sao_Paulo")
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'start_date': datetime(2019, 12, 10, tzinfo=timeZone),
+    'start_date': datetime(2019, 12, 9, tzinfo=timeZone),
     'email': ['airflow@example.com'],
     'email_on_failure': False,
     'email_on_retry': False,
     'retries': 1,
     'retry_delay': timedelta(minutes=5),
-    'end_date': datetime(2019, 12, 19, tzinfo=timeZone)
     # 'queue': 'bash_queue',
     # 'pool': 'backfill',
     # 'priority_weight': 10,
@@ -29,29 +28,19 @@ default_args = {
 dag_python = DAG(
     'exec_python_script',
     catchup=False,
-    schedule_interval='45 17 * * *',
+    schedule_interval='15 16 * * *',
     default_args=default_args
 )
 
-#criando taskSyncS3
-taskCriarDiretorio = BashOperator(
-    task_id='criar_diretorio',
+#executando DataCleaner
+taskDataCleaner = BashOperator(
+    task_id='executando_Data_Cleaner',
     bash_command="""
         cd /usr/local/airflow/dags/scripts_tasks
-        python criarDiretorio.py
-    """,
-    dag=dag_python
-)
-
-#criando taskLoadClientePfCarga
-taskCopiarArquivo = BashOperator(
-    task_id='copiar_arquivo',
-    bash_command="""
-        cd /usr/local/airflow/dags/scripts_tasks
-        python copiarArquivo.py
+        python executaDataCleaner.py
     """,
     dag=dag_python
 )
 
 #criando relação entre as duas tarefas do DAG.
-taskCriarDiretorio >> taskCopiarArquivo
+taskDataCleaner
